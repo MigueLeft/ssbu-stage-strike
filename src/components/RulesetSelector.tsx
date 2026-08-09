@@ -23,11 +23,8 @@ export function RulesetSelector({ rulesetId, locked, onChange }: RulesetSelector
           </option>
         ))}
       </select>
-      {locked ? (
-        <p className="text-xs text-white/60">Reiniciá el set para cambiar de ruleset.</p>
-      ) : (
-        <p className="text-xs text-white/60">{active.description}</p>
-      )}
+      {locked && <p className="text-xs text-white/60">Reiniciá el set para cambiar de ruleset.</p>}
+      {!locked && active.description && <p className="text-xs text-white/60">{active.description}</p>}
     </div>
   );
 }

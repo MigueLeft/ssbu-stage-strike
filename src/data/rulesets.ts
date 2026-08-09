@@ -12,7 +12,7 @@ export interface RulesetDef {
   id: string;
   name: string;
   shortLabel: string;
-  description: string;
+  description?: string;
   stagePoolMode: 'flat' | 'starter-counterpick';
   stageIds: string[];
   stageCategoryOverrides?: Record<string, StageCategory>;
