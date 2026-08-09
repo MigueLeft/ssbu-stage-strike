@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #EDE9F8;
+  --color-panel-from: #4A3FBE;
+  --color-panel-to: #241A66;
+  --color-sidebar-dark: #1B1436;
+  --color-purple: #3A2E8C;
+  --color-purple-dark: #2A1F6E;
+  --color-orange: #FF7A1A;
+  --color-gold: #FFC94A;
+  --color-gold-dark: #FFB23E;
+  --color-lilac: #8B8FF5;
+  --color-surface: #FFFFFF;
+  --color-surface-soft: #F4F2FC;
+  --color-circle: #E4DFF7;
+  --color-text-dark: #241A4E;
+  --color-text-dark-secondary: #6B6690;
+  --color-text-light: #FFFFFF;
+  --color-text-light-secondary: #C9C3EE;
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text-dark);
+}
+
+h1, h2, h3, .font-heading {
+  font-family: var(--font-heading);
+}
+
+@keyframes strike-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6) rotate(-15deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes pop-check {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes banner-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-strike-in {
+  animation: strike-in 220ms ease-out;
+}
+
+.animate-pop-check {
+  animation: pop-check 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-banner-fade {
+  animation: banner-fade 200ms ease-out;
+}
