@@ -1,9 +1,9 @@
-import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { useAppState } from '../hooks/useAppState';
 import { useRoom } from '../hooks/useRoom';
 import { resolveStages, type PlayerId, type RpsChoice } from '../state/appReducer';
 import { getRuleset } from '../data/rulesets';
-import type { StageCategory } from '../data/stages';
+import { DEFAULT_STAGES, type StageCategory } from '../data/stages';
 import { bannedBy, canClickStage, currentStep, instructionFor, isCandidate, isPicked } from '../state/selectors';
 import { PlayerNames } from './PlayerNames';
 import { TurnBanner } from './TurnBanner';
@@ -27,7 +27,7 @@ export function StageStriker() {
   }
 
   const ruleset = getRuleset(state.rulesetId);
-  const stages = resolveStages(ruleset, state.stageOverrides);
+  const stages = resolveStages(ruleset, state.stageOverrides, state.stageOrder);
   const currentStage = stages.find((s) => s.id === state.flow.currentStageId);
   const isSpectator = isRemote && myRole === 'spectator';
 
@@ -45,7 +45,28 @@ export function StageStriker() {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over) return;
-    dispatch({ type: 'MOVE_STAGE', id: String(active.id), category: over.id as StageCategory });
+    const activeId = String(active.id);
+    const overId = String(over.id);
+    if (activeId === overId) return;
+
+    const categoryOf = new Map(stages.map((s) => [s.id, s.category] as const));
+    const isOverContainer = overId === 'starter' || overId === 'counterpick';
+    const targetCategory: StageCategory = isOverContainer
+      ? (overId as StageCategory)
+      : (categoryOf.get(overId) ?? categoryOf.get(activeId)!);
+
+    const withoutActive = state.stageOrder.filter((id) => id !== activeId);
+    const overIndex = isOverContainer ? -1 : withoutActive.indexOf(overId);
+    const insertIndex = overIndex === -1 ? withoutActive.length : overIndex;
+
+    const order = [...withoutActive.slice(0, insertIndex), activeId, ...withoutActive.slice(insertIndex)];
+    const categoryChanged = targetCategory !== categoryOf.get(activeId);
+
+    dispatch({
+      type: 'REORDER_STAGES',
+      order,
+      ...(categoryChanged ? { categoryChange: { id: activeId, category: targetCategory } } : {}),
+    });
   }
 
   function handleStageClick(stageId: string) {
@@ -71,7 +92,10 @@ export function StageStriker() {
   }
 
   function handleResetPool() {
-    dispatch({ type: 'HYDRATE', state: { stageOverrides: {} } });
+    dispatch({
+      type: 'HYDRATE',
+      state: { stageOverrides: {}, stageOrder: DEFAULT_STAGES.map((s) => s.id) },
+    });
   }
 
   const phaseKey = [
@@ -167,7 +191,7 @@ export function StageStriker() {
         )}
 
         {state.flow.phase !== 'rps' && (
-          <DndContext id="stage-striker-dnd" onDragEnd={handleDragEnd}>
+          <DndContext id="stage-striker-dnd" collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             {ruleset.stagePoolMode === 'starter-counterpick' ? (
               <>
                 <StageGrid

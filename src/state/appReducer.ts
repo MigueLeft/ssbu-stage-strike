@@ -28,6 +28,7 @@ export interface FlowState {
 export interface AppState {
   rulesetId: string;
   stageOverrides: Record<string, StageCategory>;
+  stageOrder: string[];
   players: Record<PlayerId, string>;
   editMode: boolean;
   flow: FlowState;
@@ -35,7 +36,7 @@ export interface AppState {
 
 export type AppAction =
   | { type: 'SET_RULESET'; id: string }
-  | { type: 'MOVE_STAGE'; id: string; category: StageCategory }
+  | { type: 'REORDER_STAGES'; order: string[]; categoryChange?: { id: string; category: StageCategory } }
   | { type: 'SET_PLAYER_NAME'; player: PlayerId; name: string }
   | { type: 'TOGGLE_EDIT_MODE' }
   | { type: 'RPS_CHOOSE'; player: PlayerId; choice: RpsChoice }
@@ -44,7 +45,7 @@ export type AppAction =
   | { type: 'PICK_STAGE'; id: string }
   | { type: 'DECLARE_WINNER'; winner: PlayerId }
   | { type: 'RESET' }
-  | { type: 'HYDRATE'; state: Partial<Pick<AppState, 'rulesetId' | 'stageOverrides' | 'players'>> };
+  | { type: 'HYDRATE'; state: Partial<Pick<AppState, 'rulesetId' | 'stageOverrides' | 'stageOrder' | 'players'>> };
 
 function resolveActor(role: ActorRole, flow: FlowState): PlayerId {
   switch (role) {
@@ -95,6 +96,7 @@ export function initialAppState(rulesetId: string, players?: Record<PlayerId, st
   return {
     rulesetId: ruleset.id,
     stageOverrides: {},
+    stageOrder: DEFAULT_STAGES.map((s) => s.id),
     players: players ?? { p1: 'Jugador 1', p2: 'Jugador 2' },
     editMode: false,
     flow: initialFlow(ruleset),
@@ -114,6 +116,7 @@ export function normalizeAppState(raw: Partial<AppState> | null | undefined): Ap
   return {
     rulesetId: raw.rulesetId ?? 'custom-1-2-1',
     stageOverrides: raw.stageOverrides ?? {},
+    stageOrder: raw.stageOrder ?? DEFAULT_STAGES.map((s) => s.id),
     players: raw.players ?? { p1: 'Jugador 1', p2: 'Jugador 2' },
     editMode: raw.editMode ?? false,
     flow: {
@@ -146,13 +149,25 @@ function resolveRpsWinner(a: RpsChoice, b: RpsChoice): PlayerId | 'tie' {
   return beats[a] === b ? 'p1' : 'p2';
 }
 
-export function resolveStages(ruleset: RulesetDef, stageOverrides: Record<string, StageCategory>): Stage[] {
-  return DEFAULT_STAGES.filter((s) => ruleset.stageIds.includes(s.id)).map((s) => {
+export function resolveStages(
+  ruleset: RulesetDef,
+  stageOverrides: Record<string, StageCategory>,
+  stageOrder: string[],
+): Stage[] {
+  const stages = DEFAULT_STAGES.filter((s) => ruleset.stageIds.includes(s.id)).map((s) => {
     const fixedCategory = ruleset.stageCategoryOverrides?.[s.id];
     if (fixedCategory) return { ...s, category: fixedCategory };
     if (ruleset.editablePool && stageOverrides[s.id]) return { ...s, category: stageOverrides[s.id] };
     return s;
   });
+
+  // El orden personalizado solo aplica al ruleset editable — los rulesets con pool
+  // fijo siempre se muestran en su orden natural, sin importar lo que el usuario
+  // haya reordenado en el ruleset personalizado.
+  if (!ruleset.editablePool) return stages;
+
+  const orderIndex = new Map(stageOrder.map((id, index) => [id, index]));
+  return [...stages].sort((a, b) => (orderIndex.get(a.id) ?? 0) - (orderIndex.get(b.id) ?? 0));
 }
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -164,8 +179,12 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, rulesetId: nextRuleset.id, editMode: false, flow: initialFlow(nextRuleset) };
     }
 
-    case 'MOVE_STAGE':
-      return { ...state, stageOverrides: { ...state.stageOverrides, [action.id]: action.category } };
+    case 'REORDER_STAGES': {
+      const stageOverrides = action.categoryChange
+        ? { ...state.stageOverrides, [action.categoryChange.id]: action.categoryChange.category }
+        : state.stageOverrides;
+      return { ...state, stageOverrides, stageOrder: action.order };
+    }
 
     case 'SET_PLAYER_NAME':
       return { ...state, players: { ...state.players, [action.player]: action.name } };

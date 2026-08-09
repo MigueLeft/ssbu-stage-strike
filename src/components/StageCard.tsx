@@ -1,4 +1,5 @@
-import { useDraggable } from '@dnd-kit/core';
+import type { CSSProperties } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Stage } from '../data/stages';
 import type { PlayerId } from '../state/appReducer';
@@ -19,14 +20,20 @@ interface StageCardProps {
 }
 
 export function StageCard({ stage, bannedBy, picked, candidate, clickable, editMode, onClick }: StageCardProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, isDragging, isOver } = useSortable({
     id: stage.id,
     disabled: !editMode,
   });
 
-  const style = transform
-    ? { transform: CSS.Translate.toString(transform), zIndex: isDragging ? 20 : undefined }
-    : undefined;
+  // Mientras se arrastra, la transición CSS de `transition-all` compite con el
+  // transform que dnd-kit aplica en cada frame — eso es lo que hace sentir el
+  // drag lento/pesado. Se desactiva por completo mientras `isDragging` es true.
+  const style: CSSProperties = {
+    transform: transform ? CSS.Translate.toString(transform) : undefined,
+    zIndex: isDragging ? 20 : undefined,
+    transition: isDragging ? 'none' : undefined,
+    touchAction: editMode ? 'none' : undefined,
+  };
 
   const dimmed = !editMode && !clickable && !bannedBy && !picked && !candidate;
 
@@ -40,10 +47,11 @@ export function StageCard({ stage, bannedBy, picked, candidate, clickable, editM
       onClick={editMode ? undefined : onClick}
       disabled={dimmed}
       className={[
-        'group relative aspect-video w-full overflow-hidden rounded-2xl bg-surface text-left shadow-sm ring-0 transition-all duration-200',
+        'group relative aspect-video w-full select-none overflow-hidden rounded-2xl bg-surface text-left shadow-sm ring-0 transition-all duration-200',
         editMode ? 'cursor-grab active:cursor-grabbing' : clickable ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-lg' : 'cursor-default',
         picked ? 'scale-[1.06] shadow-lg ring-4 ring-gold' : '',
         candidate ? 'ring-4 ring-dashed ring-lilac' : '',
+        editMode && isOver && !isDragging ? 'ring-4 ring-dashed ring-orange' : '',
         isDragging ? 'opacity-60' : '',
       ].join(' ')}
     >

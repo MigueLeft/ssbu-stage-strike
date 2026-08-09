@@ -22,9 +22,9 @@ export const DEFAULT_STAGES: Stage[] = [
   { id: 'battlefield', name: 'Battlefield', image: battlefield, category: 'starter' },
   { id: 'small_battlefield', name: 'Small Battlefield', image: smallBattlefield, category: 'starter' },
   { id: 'final_destination', name: 'Final Destination', image: finalDestination, category: 'starter' },
-  { id: 'town_and_city', name: 'Town and City', image: townAndCity, category: 'starter' },
-  { id: 'smashville', name: 'Smashville', image: smashville, category: 'starter' },
+  { id: 'town_and_city', name: 'Town and City', image: townAndCity, category: 'counterpick' },
+  { id: 'smashville', name: 'Smashville', image: smashville, category: 'counterpick' },
   { id: 'pokemon_stadium_2', name: 'Pokémon Stadium 2', image: pokemonStadium2, category: 'starter' },
   { id: 'kalos_league', name: 'Kalos Pokémon League', image: kalosLeague, category: 'counterpick' },
-  { id: 'hollow_bastion', name: 'Hollow Bastion', image: hollowBastion, category: 'counterpick' },
+  { id: 'hollow_bastion', name: 'Hollow Bastion', image: hollowBastion, category: 'starter' },
 ];
