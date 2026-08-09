@@ -28,9 +28,9 @@ const ALL_STAGE_IDS = DEFAULT_STAGES.map((s) => s.id);
 export const RULESETS: RulesetDef[] = [
   {
     id: 'custom-1-2-1',
-    name: 'Personalizado 1-2-1',
+    name: 'Stike 1-2-1',
     shortLabel: '1-2-1',
-    description: 'Formato clásico de striking con starters/counterpicks editables a tu gusto.',
+    // description: 'Formato clásico de striking con starters/counterpicks editables a tu gusto.',
     stagePoolMode: 'starter-counterpick',
     stageIds: ALL_STAGE_IDS,
     usesRps: false,
@@ -49,8 +49,8 @@ export const RULESETS: RulesetDef[] = [
     id: 'unified-european',
     name: 'Unified European Ruleset',
     shortLabel: 'European',
-    description:
-      'Sin distinción starter/counterpick: los 9 escenarios están disponibles desde el inicio (usamos los 8 que tenemos cargados; Yoshi\'s Story queda fuera por no tener la imagen).',
+    // description:
+    //   'Sin distinción starter/counterpick: los 9 escenarios están disponibles desde el inicio (usamos los 8 que tenemos cargados; Yoshi\'s Story queda fuera por no tener la imagen).',
     stagePoolMode: 'flat',
     stageIds: ALL_STAGE_IDS,
     usesRps: true,
@@ -70,7 +70,7 @@ export const RULESETS: RulesetDef[] = [
     id: 'unified-north-american',
     name: 'Unified North American Ruleset',
     shortLabel: 'North American',
-    description: 'Starters y counterpicks fijos según el reglamento unificado de Norteamérica.',
+    // description: 'Starters y counterpicks fijos según el reglamento unificado de Norteamérica.',
     stagePoolMode: 'starter-counterpick',
     stageIds: ALL_STAGE_IDS,
     stageCategoryOverrides: {

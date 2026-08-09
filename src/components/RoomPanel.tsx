@@ -2,8 +2,8 @@ import { useState } from 'react';
 import type { Role } from '../state/rolePermissions';
 
 const ROLE_LABEL: Record<Role, string> = {
-  p1: 'Sos Jugador 1',
-  p2: 'Sos Jugador 2',
+  p1: 'Eres el Jugador 1',
+  p2: 'Eres el Jugador 2',
   spectator: 'Estás viendo como espectador',
 };
 
