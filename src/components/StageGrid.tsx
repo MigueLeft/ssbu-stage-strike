@@ -54,7 +54,7 @@ export function StageGrid({
         <SortableContext items={stages.map((s) => s.id)} strategy={rectSortingStrategy}>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:flex lg:flex-wrap lg:justify-center">
             {stages.map((stage, index) => {
-              const isDanglingLast = dropId === 'starter' && stages.length % 2 === 1 && index === stages.length - 1;
+              const isDanglingLast = stages.length % 2 === 1 && index === stages.length - 1;
               return (
                 <div
                   key={stage.id}
