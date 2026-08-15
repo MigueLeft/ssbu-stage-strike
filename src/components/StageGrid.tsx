@@ -52,19 +52,29 @@ export function StageGrid({
         </p>
       ) : (
         <SortableContext items={stages.map((s) => s.id)} strategy={rectSortingStrategy}>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {stages.map((stage) => (
-              <StageCard
-                key={stage.id}
-                stage={stage}
-                bannedBy={bannedBy(stage.id)}
-                picked={isPicked(stage.id)}
-                candidate={isCandidate(stage.id)}
-                clickable={canClickStage(stage)}
-                editMode={editMode}
-                onClick={() => onStageClick(stage)}
-              />
-            ))}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:flex lg:flex-wrap lg:justify-center">
+            {stages.map((stage, index) => {
+              const isDanglingLast = dropId === 'starter' && stages.length % 2 === 1 && index === stages.length - 1;
+              return (
+                <div
+                  key={stage.id}
+                  className={[
+                    isDanglingLast ? 'col-span-2 mx-auto w-1/2 sm:col-span-1 sm:mx-0 sm:w-auto' : '',
+                    'lg:w-[calc((100%-1.5rem)/3)]',
+                  ].join(' ')}
+                >
+                  <StageCard
+                    stage={stage}
+                    bannedBy={bannedBy(stage.id)}
+                    picked={isPicked(stage.id)}
+                    candidate={isCandidate(stage.id)}
+                    clickable={canClickStage(stage)}
+                    editMode={editMode}
+                    onClick={() => onStageClick(stage)}
+                  />
+                </div>
+              );
+            })}
           </div>
         </SortableContext>
       )}
